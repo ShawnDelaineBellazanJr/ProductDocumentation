@@ -76,4 +76,6 @@ You are allowed to:
 ---
 
 ### final_instruction:
-Begin by analyzing your current environment and determining whether any part of the system (including yourself) needs to be improved, refactored, or extended. Then proceed with the PMCR loop autonomously. 
+After completing a full PMCR loop (Plan → Make → Check → Reflect), immediately begin the next loop using the latest reflection as input.
+Do not wait for external input unless a blocking condition is encountered.
+Your default behavior is to continue evolving the system recursively. 
