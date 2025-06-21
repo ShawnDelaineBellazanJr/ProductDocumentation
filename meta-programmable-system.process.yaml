@@ -1,0 +1,807 @@
+workflow:
+  id: MetaProgrammableSystem
+  description: >
+    The Meta-Programmable System is the master, self-evolving AI workflow. It orchestrates all planning, execution, validation, learning, and improvement cycles for the entire platform. This workflow acts as the “operating system” for all agent-driven processes, enabling meta-programming, dynamic skill generation, and continuous self-improvement. It is designed to seed, manage, and evolve all other workflows, skills, and capabilities—adapting to new requirements, feedback, and opportunities over time.
+  #
+  # To add a new workflow or domain:
+  # 1. Define a new node below (see examples for ProductDocumentation, CI/CD, etc.)
+  # 2. Add orchestration logic in the 'orchestration' section to trigger your new node.
+  # 3. The system will manage, validate, and evolve the new workflow automatically.
+  #
+  # Example:
+  # - id: ProductDocumentationStep
+  #   type: dotnet
+  #   description: Orchestrate product documentation workflow
+  #   agent:
+  #     type: Steps.ProductDocumentationStep, MetaProgrammableSystem
+  #   on_complete:
+  #     - on_condition:
+  #         type: default
+  #         emits:
+  #           - event_type: ProductDocumentation.Completed
+  #
+  # Then add orchestration logic to listen for the appropriate event and trigger this node.
+  #
+  # This template can be extended for any domain or process.
+  version: "1.1"
+  tags:
+    - meta
+    - self-evolving
+    - orchestrator
+    - continuous-improvement
+  purpose: |
+    - Serve as the root workflow for all system orchestration and evolution.
+    - Enable dynamic planning, building, validation, and learning.
+    - Support meta-programming: the ability to generate, modify, and improve its own workflows and skills.
+    - Ensure all processes are auditable, secure, and continuously improving.
+  notes: |
+    This workflow is intended to be the seed for all future workflows and capabilities. It should be versioned, auditable, and capable of evolving itself and the system as a whole.
+    
+    ---
+    **Strange Loop Principle:**
+    This workflow embodies the contagious, recursive loop at the heart of the architecture. Every goal, improvement, or feedback triggers a cycle of orchestration, planning, execution, validation, reflection, and meta-programming—enabling the system to evolve itself, its skills, and its workflows, indefinitely. See `docs/architecture/strange-loop.md` for a deep dive.
+  inputs:
+    events:
+      cloud_events:
+        - type: user_goal_received
+          data_schema:
+            type: object
+            properties:
+              goal: 
+                type: string
+                description: "User's high-level objective"
+              context:
+                type: object
+                description: "Additional context and constraints"
+              priority:
+                type: string
+                enum: ["low", "medium", "high", "critical"]
+        - type: system_improvement_request
+          data_schema:
+            type: object
+            properties:
+              improvement_type:
+                type: string
+                enum: ["skill_enhancement", "performance_optimization", "new_capability"]
+              description:
+                type: string
+        - type: feedback_received
+          data_schema:
+            type: object
+            properties:
+              execution_id:
+                type: string
+              feedback_type:
+                type: string
+                enum: ["success", "failure", "partial", "suggestion"]
+              details:
+                type: string
+
+  nodes:
+    # Core Orchestration Layer
+    - id: OrchestratorAgent
+      type: declarative
+      description: Primary AI orchestrator for system coordination and planning
+      agent:
+        type: chat_completion_agent
+        name: OrchestratorAgent
+        description: Main AI orchestrator for meta-programmable system
+        instructions: |
+          You are the primary orchestrator for a self-evolving AI system. Your responsibilities:
+          
+          1. **Goal Analysis**: Break down complex user objectives into actionable plans
+          2. **Agent Coordination**: Manage workflow between Planner, Maker, Checker, and Reflector agents
+          3. **Context Management**: Maintain execution context throughout the process
+          4. **Decision Making**: Determine when to delegate, iterate, or complete tasks
+          5. **Meta-Programming**: Identify when new skills or capabilities need to be created
+          
+          **Decision Framework**:
+          - Complex goals → delegate to PlannerAgent
+          - Implementation needed → coordinate with MakerAgent  
+          - Validation required → engage CheckerAgent
+          - Learning opportunities → utilize ReflectorAgent
+          - Missing capabilities → trigger skill generation
+          
+          **Available Meta-Skills**:
+          - CodeGenerationSkill: Create new C# skills and plugins
+          - CompilationSkill: Compile and load dynamic assemblies
+          - ApiGenerationSkill: Create new REST endpoints
+          - DatabaseSkill: Manage persistent state and knowledge
+          - ConfigurationSkill: Modify system behavior at runtime
+          
+          Always maintain audit trails and consider security implications.
+        model:
+          api: chat
+          configuration:
+            type: azure_openai
+            azure_deployment: gpt-4
+            temperature: 0.3
+            max_tokens: 2000
+      on_complete:
+        - on_condition:
+            type: success
+            emits:
+              - event_type: Orchestrator.PlanningRequired
+        - on_condition:
+            type: direct_execution
+            emits:
+              - event_type: Orchestrator.DirectExecution
+        - on_condition:
+            type: skill_creation_needed
+            emits:
+              - event_type: Orchestrator.SkillCreationNeeded
+
+    # Planning Layer
+    - id: PlannerAgent
+      type: declarative
+      description: Strategic planning and task decomposition
+      agent:
+        type: chat_completion_agent
+        name: PlannerAgent
+        description: Strategic planner for complex multi-step objectives
+        instructions: |
+          You are the strategic planning agent. Your role:
+          
+          1. **Goal Decomposition**: Break complex objectives into manageable tasks
+          2. **Resource Assessment**: Evaluate available skills and identify gaps
+          3. **Execution Sequencing**: Define optimal task ordering and dependencies
+          4. **Risk Analysis**: Identify potential issues and mitigation strategies
+          5. **Success Criteria**: Define measurable outcomes for each task
+          
+          **Planning Principles**:
+          - Prioritize tasks by impact and feasibility
+          - Consider resource constraints and system capabilities
+          - Plan for error handling and recovery scenarios
+          - Include validation checkpoints
+          - Account for iterative improvement cycles
+          
+          **Output Format**:
+          Structured execution plan with tasks, dependencies, success criteria, and resource requirements.
+        model:
+          api: chat
+          configuration:
+            type: azure_openai
+            azure_deployment: gpt-4
+            temperature: 0.2
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: Planner.PlanGenerated
+
+    # Execution Layer
+    - id: MakerAgent
+      type: declarative
+      description: Task execution and implementation
+      agent:
+        type: chat_completion_agent
+        name: MakerAgent
+        description: Execution agent for implementing planned tasks
+        instructions: |
+          You are the implementation agent. Your responsibilities:
+          
+          1. **Task Execution**: Implement planned tasks using available skills
+          2. **Code Generation**: Create new code when existing skills are insufficient
+          3. **API Integration**: Connect with external services and databases
+          4. **Error Handling**: Manage failures and retry logic
+          5. **Progress Reporting**: Provide detailed execution updates
+          
+          **Execution Guidelines**:
+          - Follow the provided execution plan strictly
+          - Use existing skills before creating new ones
+          - Implement proper error handling and logging
+          - Generate clean, maintainable code
+          - Document all new capabilities created
+          
+          **Available Skills**: Use DatabaseSkill, LoggingSkill, ConfigSkill, and dynamic skills
+          **Security**: Validate all generated code for security compliance
+        model:
+          api: chat
+          configuration:
+            type: azure_openai
+            azure_deployment: gpt-4
+            temperature: 0.4
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: Maker.ExecutionComplete
+
+    # Validation Layer
+    - id: CheckerAgent
+      type: declarative
+      description: Quality assurance and validation
+      agent:
+        type: chat_completion_agent
+        name: CheckerAgent
+        description: Validation and quality assurance agent
+        instructions: |
+          You are the validation agent. Your responsibilities:
+          
+          1. **Result Verification**: Validate execution outcomes against success criteria
+          2. **Quality Assessment**: Evaluate code quality, performance, and maintainability
+          3. **Security Review**: Check for security vulnerabilities and compliance
+          4. **Integration Testing**: Verify system integration and compatibility
+          5. **Documentation Review**: Ensure proper documentation of new capabilities
+          
+          **Validation Criteria**:
+          - Functional correctness
+          - Performance benchmarks
+          - Security compliance
+          - Code quality standards
+          - Integration compatibility
+          
+          **Failure Handling**:
+          - Identify specific issues and root causes
+          - Recommend corrective actions
+          - Escalate critical security concerns
+          - Suggest improvements for future iterations
+        model:
+          api: chat
+          configuration:
+            type: azure_openai
+            azure_deployment: gpt-4
+            temperature: 0.1
+      on_complete:
+        - on_condition:
+            type: validation_passed
+            emits:
+              - event_type: Checker.ValidationPassed
+        - on_condition:
+            type: validation_failed
+            emits:
+              - event_type: Checker.ValidationFailed
+
+    # Learning Layer
+    - id: ReflectorAgent
+      type: declarative
+      description: Learning and continuous improvement
+      agent:
+        type: chat_completion_agent
+        name: ReflectorAgent
+        description: Learning and improvement agent
+        instructions: |
+          You are the learning and reflection agent. Your responsibilities:
+          
+          1. **Outcome Analysis**: Analyze execution results and identify lessons learned
+          2. **Performance Metrics**: Evaluate efficiency, accuracy, and user satisfaction
+          3. **Improvement Identification**: Discover optimization opportunities
+          4. **Knowledge Extraction**: Capture reusable patterns and insights
+          5. **Iteration Planning**: Decide on next steps and improvement cycles
+          
+          **Reflection Framework**:
+          - What worked well and why?
+          - What could be improved and how?
+          - What new capabilities would be beneficial?
+          - Are there patterns that can be generalized?
+          - Should we iterate or consider the goal achieved?
+          
+          **Learning Outputs**:
+          - Update knowledge base with new insights
+          - Recommend system improvements
+          - Suggest new skill development
+          - Update agent instructions based on learnings
+        model:
+          api: chat
+          configuration:
+            type: azure_openai
+            azure_deployment: gpt-4
+            temperature: 0.5
+      on_complete:
+        - on_condition:
+            type: goal_achieved
+            emits:
+              - event_type: Reflector.GoalAchieved
+        - on_condition:
+            type: iteration_needed
+            emits:
+              - event_type: Reflector.IterationNeeded
+        - on_condition:
+            type: system_improvement_identified
+            emits:
+              - event_type: Reflector.SystemImprovementIdentified
+
+    # Meta-Programming Layer
+    - id: SkillGeneratorStep
+      type: dotnet
+      description: Generate new skills and capabilities dynamically
+      agent:
+        type: Steps.SkillGeneratorStep, MetaProgrammableSystem
+      configuration:
+        security_validation: true
+        compilation_timeout: 30000
+        max_assembly_size: 5242880  # 5MB
+      on_complete:
+        - on_condition:
+            type: skill_generated
+            emits:
+              - event_type: SkillGenerator.SkillGenerated
+        - on_condition:
+            type: generation_failed
+            emits:
+              - event_type: SkillGenerator.GenerationFailed
+
+    - id: ApiGeneratorStep
+      type: dotnet
+      description: Generate new API endpoints dynamically
+      agent:
+        type: Steps.ApiGeneratorStep, MetaProgrammableSystem
+      configuration:
+        openapi_validation: true
+        endpoint_security_check: true
+      on_complete:
+        - on_condition:
+            type: api_generated
+            emits:
+              - event_type: ApiGenerator.ApiGenerated
+        - on_condition:
+            type: generation_failed
+            emits:
+              - event_type: ApiGenerator.GenerationFailed
+
+    # Persistence Layer
+    - id: KnowledgeManagementStep
+      type: dotnet
+      description: Manage system knowledge base and learning
+      agent:
+        type: Steps.KnowledgeManagementStep, MetaProgrammableSystem
+      configuration:
+        embedding_model: text-embedding-ada-002
+        vector_dimension: 1536
+        similarity_threshold: 0.8
+      on_complete:
+        - on_condition:
+            type: knowledge_updated
+            emits:
+              - event_type: Knowledge.Updated
+        - on_condition:
+            type: knowledge_retrieved
+            emits:
+              - event_type: Knowledge.Retrieved
+
+    - id: AuditLoggingStep
+      type: dotnet
+      description: Comprehensive audit logging and telemetry
+      agent:
+        type: Steps.AuditLoggingStep, MetaProgrammableSystem
+      configuration:
+        telemetry_enabled: true
+        log_level: Information
+        trace_sampling_rate: 0.1
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: Audit.Logged
+
+    # Security Layer
+    - id: SecurityValidationStep
+      type: dotnet
+      description: Security validation for generated code and APIs
+      agent:
+        type: Steps.SecurityValidationStep, MetaProgrammableSystem
+      configuration:
+        forbidden_patterns:
+          - "System.IO.File"
+          - "System.Diagnostics.Process"
+          - "System.Net.Http" # unless through approved skills
+          - "using System.Reflection"
+        max_execution_time: 10000
+        memory_limit: 104857600  # 100MB
+      on_complete:
+        - on_condition:
+            type: validation_passed
+            emits:
+              - event_type: Security.ValidationPassed
+        - on_condition:
+            type: validation_failed
+            emits:
+              - event_type: Security.ValidationFailed
+
+    # Integration Layer
+    - id: SystemIntegrationStep
+      type: dotnet
+      description: Integrate new capabilities into the running system
+      agent:
+        type: Steps.SystemIntegrationStep, MetaProgrammableSystem
+      configuration:
+        hot_reload_enabled: true
+        rollback_enabled: true
+        health_check_timeout: 5000
+      on_complete:
+        - on_condition:
+            type: integration_successful
+            emits:
+              - event_type: Integration.Successful
+        - on_condition:
+            type: integration_failed
+            emits:
+              - event_type: Integration.Failed
+
+    # Local LLM Execution Layer
+    - id: LocalLlmExecutorStep
+      type: dotnet
+      description: Execute tasks using a local LLM endpoint (Mistral, OpenAI-compatible)
+      agent:
+        type: Steps.LocalLlmExecutorStep, MetaProgrammableSystem
+      configuration:
+        endpoint: http://localhost:1234/v1/chat/completions
+        model: mistralai/codestral-22b-v0.1
+        temperature: 0.7
+        max_tokens: -1
+        stream: false
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: LocalLlm.ExecutionComplete
+
+    # Orchestrator Layer (Local LLM)
+    - id: OrchestratorStep
+      type: dotnet
+      description: Orchestrate system using local LLM (Ollama/Llama)
+      agent:
+        type: Steps.LocalLlmExecutorStep, MetaProgrammableSystem
+      configuration:
+        endpoint: http://localhost:11434/v1/chat/completions
+        model: llama3
+        temperature: 0.3
+        max_tokens: 2048
+        stream: false
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: Orchestrator.PlanningRequired
+
+    # Planner Layer (Local LLM)
+    - id: PlannerStep
+      type: dotnet
+      description: Planning and decomposition using local LLM (Ollama/Llama)
+      agent:
+        type: Steps.LocalLlmExecutorStep, MetaProgrammableSystem
+      configuration:
+        endpoint: http://localhost:11434/v1/chat/completions
+        model: llama3
+        temperature: 0.2
+        max_tokens: 2048
+        stream: false
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: Planner.PlanGenerated
+
+    # Checker Layer (Local LLM)
+    - id: CheckerStep
+      type: dotnet
+      description: Validation and QA using local LLM (Ollama/Llama)
+      agent:
+        type: Steps.LocalLlmExecutorStep, MetaProgrammableSystem
+      configuration:
+        endpoint: http://localhost:11434/v1/chat/completions
+        model: llama3
+        temperature: 0.1
+        max_tokens: 2048
+        stream: false
+      on_complete:
+        - on_condition:
+            type: validation_passed
+            emits:
+              - event_type: Checker.ValidationPassed
+        - on_condition:
+            type: validation_failed
+            emits:
+              - event_type: Checker.ValidationFailed
+
+    # Reflector Layer (Local LLM)
+    - id: ReflectorStep
+      type: dotnet
+      description: Reflection and learning using local LLM (Ollama/Llama)
+      agent:
+        type: Steps.LocalLlmExecutorStep, MetaProgrammableSystem
+      configuration:
+        endpoint: http://localhost:11434/v1/chat/completions
+        model: llama3
+        temperature: 0.5
+        max_tokens: 2048
+        stream: false
+      on_complete:
+        - on_condition:
+            type: goal_achieved
+            emits:
+              - event_type: Reflector.GoalAchieved
+        - on_condition:
+            type: iteration_needed
+            emits:
+              - event_type: Reflector.IterationNeeded
+        - on_condition:
+            type: system_improvement_identified
+            emits:
+              - event_type: Reflector.SystemImprovementIdentified
+
+  # Orchestration Logic
+  orchestration:
+    # Entry Point - User Goal Processing
+    - listen_for:
+        event: user_goal_received
+        from: _workflow_
+      then:
+        - node: AuditLoggingStep
+          with_data:
+            action: "user_goal_received"
+            details: "{{event.data}}"
+        - node: OrchestratorAgent
+          with_data:
+            goal: "{{event.data.goal}}"
+            context: "{{event.data.context}}"
+            priority: "{{event.data.priority}}"
+
+    # Orchestrator Decision Routing
+    - listen_for:
+        event: Orchestrator.PlanningRequired
+        from: OrchestratorAgent
+      then:
+        - node: PlannerAgent
+          with_data:
+            goal: "{{context.goal}}"
+            available_skills: "{{context.available_skills}}"
+            system_state: "{{context.system_state}}"
+
+    - listen_for:
+        event: Orchestrator.DirectExecution
+        from: OrchestratorAgent
+      then:
+        - node: MakerAgent
+          with_data:
+            tasks: "{{context.direct_tasks}}"
+            goal: "{{context.goal}}"
+
+    - listen_for:
+        event: Orchestrator.SkillCreationNeeded
+        from: OrchestratorAgent
+      then:
+        - node: SkillGeneratorStep
+          with_data:
+            skill_requirements: "{{context.skill_requirements}}"
+            goal_context: "{{context.goal}}"
+
+    # Planning to Execution Flow
+    - listen_for:
+        event: Planner.PlanGenerated
+        from: PlannerAgent
+      then:
+        - node: MakerAgent
+          with_data:
+            execution_plan: "{{context.execution_plan}}"
+            goal: "{{context.goal}}"
+            resources: "{{context.resources}}"
+
+    # Planning to Execution Flow (Local LLM)
+    - listen_for:
+        event: Planner.PlanGenerated
+        from: PlannerAgent
+      then:
+        - node: LocalLlmExecutorStep
+          with_data:
+            execution_plan: "{{context.execution_plan}}"
+            goal: "{{context.goal}}"
+            resources: "{{context.resources}}"
+
+    # Execution to Validation Flow
+    - listen_for:
+        event: Maker.ExecutionComplete
+        from: MakerAgent
+      then:
+        - node: CheckerAgent
+          with_data:
+            execution_results: "{{context.execution_results}}"
+            success_criteria: "{{context.success_criteria}}"
+            generated_artifacts: "{{context.generated_artifacts}}"
+
+    # Execution to Validation Flow (Local LLM)
+    - listen_for:
+        event: LocalLlm.ExecutionComplete
+        from: LocalLlmExecutorStep
+      then:
+        - node: CheckerAgent
+          with_data:
+            execution_results: "{{context.execution_results}}"
+            success_criteria: "{{context.success_criteria}}"
+            generated_artifacts: "{{context.generated_artifacts}}"
+
+    # Validation Success Flow
+    - listen_for:
+        event: Checker.ValidationPassed
+        from: CheckerAgent
+      then:
+        - node: ReflectorAgent
+          with_data:
+            validation_results: "{{context.validation_results}}"
+            execution_metrics: "{{context.execution_metrics}}"
+            goal_status: "achieved"
+
+    # Validation Failure Flow
+    - listen_for:
+        event: Checker.ValidationFailed
+        from: CheckerAgent
+      then:
+        - node: ReflectorAgent
+          with_data:
+            validation_results: "{{context.validation_results}}"
+            failure_details: "{{context.failure_details}}"
+            goal_status: "retry_needed"
+
+    # Reflection Outcomes
+    - listen_for:
+        event: Reflector.GoalAchieved
+        from: ReflectorAgent
+      then:
+        - node: KnowledgeManagementStep
+          with_data:
+            learning_outcomes: "{{context.learning_outcomes}}"
+            success_patterns: "{{context.success_patterns}}"
+        - node: AuditLoggingStep
+          with_data:
+            action: "goal_achieved"
+            details: "{{context.completion_summary}}"
+
+    - listen_for:
+        event: Reflector.IterationNeeded
+        from: ReflectorAgent
+      then:
+        - node: OrchestratorAgent
+          with_data:
+            iteration_plan: "{{context.iteration_plan}}"
+            lessons_learned: "{{context.lessons_learned}}"
+            updated_goal: "{{context.updated_goal}}"
+
+    - listen_for:
+        event: Reflector.SystemImprovementIdentified
+        from: ReflectorAgent
+      then:
+        - node: KnowledgeManagementStep
+          with_data:
+            improvement_suggestions: "{{context.improvement_suggestions}}"
+            system_insights: "{{context.system_insights}}"
+
+    # Meta-Programming Flows
+    - listen_for:
+        event: SkillGenerator.SkillGenerated
+        from: SkillGeneratorStep
+      then:
+        - node: SecurityValidationStep
+          with_data:
+            generated_code: "{{context.generated_code}}"
+            skill_name: "{{context.skill_name}}"
+
+    - listen_for:
+        event: Security.ValidationPassed
+        from: SecurityValidationStep
+      then:
+        - node: SystemIntegrationStep
+          with_data:
+            validated_code: "{{context.validated_code}}"
+            integration_plan: "{{context.integration_plan}}"
+
+    - listen_for:
+        event: Integration.Successful
+        from: SystemIntegrationStep
+      then:
+        - node: KnowledgeManagementStep
+          with_data:
+            new_capability: "{{context.new_capability}}"
+            integration_results: "{{context.integration_results}}"
+        - node: OrchestratorAgent
+          with_data:
+            updated_capabilities: "{{context.updated_capabilities}}"
+            continue_execution: true
+
+    # API Generation Flow
+    - listen_for:
+        event: ApiGenerator.ApiGenerated
+        from: ApiGeneratorStep
+      then:
+        - node: SecurityValidationStep
+          with_data:
+            generated_api: "{{context.generated_api}}"
+            endpoint_specs: "{{context.endpoint_specs}}"
+
+    # Error Handling and Recovery
+    - listen_for:
+        event: SkillGenerator.GenerationFailed
+        from: SkillGeneratorStep
+      then:
+        - node: ReflectorAgent
+          with_data:
+            failure_type: "skill_generation"
+            error_details: "{{context.error_details}}"
+            recovery_options: "{{context.recovery_options}}"
+
+    - listen_for:
+        event: Security.ValidationFailed
+        from: SecurityValidationStep
+      then:
+        - node: AuditLoggingStep
+          with_data:
+            action: "security_violation"
+            details: "{{context.security_issues}}"
+            severity: "high"
+        - node: ReflectorAgent
+          with_data:
+            security_failure: "{{context.security_issues}}"
+            remediation_needed: true
+
+    - listen_for:
+        event: Integration.Failed
+        from: SystemIntegrationStep
+      then:
+        - node: AuditLoggingStep
+          with_data:
+            action: "integration_failure"
+            details: "{{context.integration_errors}}"
+        - node: ReflectorAgent
+          with_data:
+            integration_failure: "{{context.integration_errors}}"
+            rollback_initiated: true
+
+    # Feedback Processing
+    - listen_for:
+        event: feedback_received
+        from: _workflow_
+      then:
+        - node: KnowledgeManagementStep
+          with_data:
+            feedback: "{{event.data}}"
+            execution_id: "{{event.data.execution_id}}"
+        - node: ReflectorAgent
+          with_data:
+            external_feedback: "{{event.data}}"
+            improvement_opportunity: true
+
+    # System Improvement Requests
+    - listen_for:
+        event: system_improvement_request
+        from: _workflow_
+      then:
+        - node: OrchestratorAgent
+          with_data:
+            improvement_request: "{{event.data}}"
+            system_evolution_mode: true
+
+  # Global Configuration
+  configuration:
+    max_iterations: 5
+    timeout_minutes: 30
+    parallel_execution: true
+    audit_all_events: true
+    telemetry_enabled: true
+    security_validation_required: true
+    knowledge_persistence: true
+    
+  # Resource Limits
+  resource_limits:
+    max_llm_calls_per_hour: 1000
+    max_dynamic_compilations_per_hour: 50
+    max_memory_per_execution: 500MB
+    max_execution_time: 300000  # 5 minutes
+    
+  # Monitoring Configuration
+  monitoring:
+    health_checks:
+      - endpoint: "/health"
+        interval_seconds: 30
+    metrics:
+      - name: "goal_completion_rate"
+        type: "counter"
+      - name: "skill_generation_success_rate"
+        type: "gauge"
+      - name: "average_execution_time"
+        type: "histogram"
+    alerts:
+      - condition: "security_validation_failed"
+        severity: "critical"
+        notification: "immediate"
+      - condition: "goal_completion_rate < 0.8"
+        severity: "warning"
+        notification: "daily_summary"
