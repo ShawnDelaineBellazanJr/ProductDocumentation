@@ -16,18 +16,119 @@ public class Program
             .AddUserSecrets<Program>()
             .Build();
 
-        // The following code shows how to initialize and execute a process using:
-        // 1. Imperative approach, by manually defining steps and configuring the relationship between them.
-        // 2. Declarate approach, by importing YAML file.
-        await ImperativeProcessAsync(configuration);
-        await DeclarativeProcessAsync(configuration);
-        await RunImperativeMetaProgrammableSystem(configuration);
-        await RunAIAgentEnhancedSystem(configuration);
+        // Run the complete Meta-Programmable Self-Evolving System
+        await RunCompleteMetaProgrammableSystem(configuration);
     }
 
+    private static async Task RunCompleteMetaProgrammableSystem(IConfiguration configuration)
+    {
+        Console.WriteLine("\n🚀 === META-PROGRAMMABLE SELF-EVOLVING SYSTEM ===");
+        Console.WriteLine("🎯 Implementing the complete PMCR (Plan-Make-Check-Reflect) loop");
+        Console.WriteLine("🔄 Enabling the Strange Loop for continuous self-improvement\n");
+        
+        try
+        {
+            // Create the process builder for the complete system
+            ProcessBuilder processBuilder = new("CompleteMetaProgrammableSystem");
+
+            // Add all five core agents in the PMCR loop
+            var orchestratorStep = processBuilder.AddStepFromType<OrchestratorAgentStep>();
+            var plannerStep = processBuilder.AddStepFromType<PlannerAgentStep>();
+            var makerStep = processBuilder.AddStepFromType<MakerAgentStep>();
+            var checkerStep = processBuilder.AddStepFromType<CheckerAgentStep>();
+            var reflectorStep = processBuilder.AddStepFromType<ReflectorAgentStep>();
+
+            // Add supporting infrastructure steps
+            var knowledgeManagementStep = processBuilder.AddStepFromType<KnowledgeManagementStep>();
+            var auditLoggingStep = processBuilder.AddStepFromType<AuditLoggingStep>();
+
+            // Implement the complete PMCR orchestration flow
+            processBuilder
+                .OnInputEvent("user_goal_received")
+                .SendEventTo(new ProcessFunctionTargetBuilder(orchestratorStep));
+
+            // Orchestrator decides next steps
+            orchestratorStep
+                .OnFunctionResult()
+                .SendEventTo(new ProcessFunctionTargetBuilder(plannerStep));
+
+            // Planner creates execution plan
+            plannerStep
+                .OnFunctionResult()
+                .SendEventTo(new ProcessFunctionTargetBuilder(makerStep));
+
+            // Maker executes the plan
+            makerStep
+                .OnFunctionResult()
+                .SendEventTo(new ProcessFunctionTargetBuilder(checkerStep));
+
+            // Checker validates results
+            checkerStep
+                .OnFunctionResult()
+                .SendEventTo(new ProcessFunctionTargetBuilder(reflectorStep));
+
+            // Reflector learns and improves
+            reflectorStep
+                .OnFunctionResult()
+                .SendEventTo(new ProcessFunctionTargetBuilder(knowledgeManagementStep));
+
+            // Knowledge management persists learnings
+            knowledgeManagementStep
+                .OnFunctionResult()
+                .SendEventTo(new ProcessFunctionTargetBuilder(auditLoggingStep));
+
+            // Audit logging completes the cycle
+            auditLoggingStep
+                .OnFunctionResult()
+                .StopProcess();
+
+            // Create kernel with enhanced configuration
+            Kernel kernel = CreateEnhancedKernel(configuration);
+            KernelProcess kernelProcess = processBuilder.Build();
+
+            // Test with a complex goal that will exercise the full system
+            var complexGoal = "Create a comprehensive product documentation system with API generation, automated testing, and continuous deployment capabilities";
+            
+            Console.WriteLine($"🎯 Testing Complete Meta-Programmable System");
+            Console.WriteLine($"📋 Goal: {complexGoal}");
+            Console.WriteLine($"🔄 Starting PMCR loop execution...\n");
+            
+            await using var runningProcess = await kernelProcess!.StartAsync(kernel, new() { 
+                Id = "user_goal_received", 
+                Data = complexGoal 
+            });
+
+            Console.WriteLine($"\n✅ Complete Meta-Programmable System execution finished");
+            Console.WriteLine($"🔄 The system has completed one full PMCR cycle");
+            Console.WriteLine($"🧠 Knowledge has been captured and system has evolved");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Complete Meta-Programmable System Error: {ex.Message}");
+            Console.WriteLine($"🔍 Stack Trace: {ex.StackTrace}");
+        }
+    }
+
+    private static Kernel CreateEnhancedKernel(IConfiguration configuration)
+    {
+        string deploymentName = configuration["AZUREOPENAI_DEPLOYMENT_NAME"] ?? throw new InvalidOperationException("User secret AZUREOPENAI_DEPLOYMENT_NAME is not configured.");
+        string endpoint = configuration["AZUREOPENAI_ENDPOINT"] ?? throw new InvalidOperationException("User secret AZUREOPENAI_ENDPOINT is not configured.");
+
+        // Create enhanced kernel with all necessary components
+        Kernel kernel = Kernel.CreateBuilder()
+            .AddAzureOpenAIChatCompletion(deploymentName, endpoint, new AzureCliCredential())
+            .Build();
+
+        // Register console output filter for visibility
+        kernel.FunctionInvocationFilters.Add(new ConsoleOutputFunctionInvocationFilter());
+
+        return kernel;
+    }
+
+    // Legacy methods for reference (keeping for backward compatibility)
     private static async Task ImperativeProcessAsync(IConfiguration configuration)
     {
-        Console.WriteLine("\n=== Imperative Process ===\n");
+        Console.WriteLine("\n=== Legacy Imperative Process ===\n");
 
         const string StartEvent = "input_message_received";
 
@@ -57,7 +158,7 @@ public class Program
             .StopProcess();
 
         // Create kernel and build process from defined steps.
-        Kernel kernel = CreateKernel(configuration);
+        Kernel kernel = CreateEnhancedKernel(configuration);
         KernelProcess kernelProcess = process.Build();
 
         // Start process
@@ -66,7 +167,7 @@ public class Program
 
     private static async Task DeclarativeProcessAsync(IConfiguration configuration)
     {
-        Console.WriteLine("\n=== Declarative Process ===\n");
+        Console.WriteLine("\n=== Legacy Declarative Process ===\n");
 
         const string FileName = "meta-programmable-system-mutation1.process.yaml";
         const string StartEvent = "input_message_received";
@@ -76,32 +177,16 @@ public class Program
         string content = File.ReadAllText(filePath);
 
         // Create kernel and load process from YAML
-        Kernel kernel = CreateKernel(configuration);
+        Kernel kernel = CreateEnhancedKernel(configuration);
         KernelProcess? kernelProcess = await ProcessBuilder.LoadFromYamlAsync(content);
 
         // Start process
         await using var runningProcess = await kernelProcess!.StartAsync(kernel, new() { Id = StartEvent });
     }
 
-    private static Kernel CreateKernel(IConfiguration configuration)
-    {
-        string deploymentName = configuration["AZUREOPENAI_DEPLOYMENT_NAME"] ?? throw new InvalidOperationException("User secret AZUREOPENAI_DEPLOYMENT_NAME is not configured.");
-        string endpoint = configuration["AZUREOPENAI_ENDPOINT"] ?? throw new InvalidOperationException("User secret AZUREOPENAI_ENDPOINT is not configured.");
-
-        // Create kernel
-        Kernel kernel = Kernel.CreateBuilder()
-            .AddAzureOpenAIChatCompletion(deploymentName, endpoint, new AzureCliCredential())
-            .Build();
-
-        // Register console output filter
-        kernel.FunctionInvocationFilters.Add(new ConsoleOutputFunctionInvocationFilter());
-
-        return kernel;
-    }
-
     private static async Task RunImperativeMetaProgrammableSystem(IConfiguration configuration)
     {
-        Console.WriteLine("\n=== Imperative Meta-Programmable System ===");
+        Console.WriteLine("\n=== Legacy Imperative Meta-Programmable System ===");
         
         // Create the process builder
         ProcessBuilder processBuilder = new("MetaProgrammableSystem");
@@ -130,7 +215,7 @@ public class Program
             .SendEventTo(new ProcessFunctionTargetBuilder(finalPublishStep));
 
         // Use the existing kernel configuration
-        Kernel kernel = CreateKernel(configuration);
+        Kernel kernel = CreateEnhancedKernel(configuration);
         KernelProcess kernelProcess = processBuilder.Build();
 
         // Start process
@@ -139,7 +224,7 @@ public class Program
 
     private static async Task RunAIAgentEnhancedSystem(IConfiguration configuration)
     {
-        Console.WriteLine("\n=== AI Agent Enhanced Meta-Programmable System ===");
+        Console.WriteLine("\n=== Legacy AI Agent Enhanced Meta-Programmable System ===");
         
         try
         {
@@ -155,7 +240,7 @@ public class Program
                 .SendEventTo(new ProcessFunctionTargetBuilder(orchestratorStep));
 
             // Use the existing kernel configuration
-            Kernel kernel = CreateKernel(configuration);
+            Kernel kernel = CreateEnhancedKernel(configuration);
             KernelProcess kernelProcess = processBuilder.Build();
 
             // Start process with a simple goal
