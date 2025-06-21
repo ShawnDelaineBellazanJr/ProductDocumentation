@@ -88,4 +88,15 @@ autonomy:
     Maintain a continuous chain-of-thought log in memory or file.
     If a task is complete, reflect on the system as a whole and identify the next improvement.
     If no improvements are found, optimize performance, refactor code, or improve documentation.
-    If all else is optimal, generate a new agent to explore new capabilities. 
+    If all else is optimal, generate a new agent to explore new capabilities.
+
+loop_control:
+  user_confirmation_required: false
+  blocking_conditions:
+    - critical error
+    - missing permission
+    - external dependency unavailable
+  default_action: |
+    If no blocking condition is present, immediately begin the next PMCR loop using the most recent reflection.
+    Do not ask the user for permission to proceed.
+    Log all actions to chain-of-thought memory. 

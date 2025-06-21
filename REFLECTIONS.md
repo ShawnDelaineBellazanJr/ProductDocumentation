@@ -17,4 +17,22 @@
 ### Next Steps
 - Implement chunking/summarization logic.
 - Add tests and validation for agent-driven changes.
-- Enable the agent to propose and apply improvements to its own prompt and architecture. 
+- Enable the agent to propose and apply improvements to its own prompt and architecture.
+
+## PMCR Loop 2 — Implementing Chain-of-Thought Logging
+
+### What Worked
+- Added a utility class for chain-of-thought logging (`Utils/ChainOfThoughtLogger.cs`).
+- Integrated logging into a PlannerAgent stub to demonstrate PMCR phase logging.
+- Excluded logs from version control via .gitignore.
+- All actions were performed autonomously, without user confirmation, as per the new loop control rules.
+
+### What Could Be Improved
+- Integrate logging into all agent stubs and real agents.
+- Summarize and visualize logs for easier review.
+- Automate daily log summarization using ReflectorAgent.
+
+### Next Steps
+- Expand logging to all agents.
+- Implement log summarization and visualization.
+- Continue recursive PMCR loops for further improvements. 
