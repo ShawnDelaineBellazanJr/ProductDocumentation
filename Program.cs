@@ -2,6 +2,7 @@
 using Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Process;
 using Steps;
 
 namespace ProductDocumentation;
@@ -20,6 +21,7 @@ public class Program
         // 2. Declarate approach, by importing YAML file.
         await ImperativeProcessAsync(configuration);
         await DeclarativeProcessAsync(configuration);
+        await ImperativeMetaProgrammableSystemAsync(configuration);
     }
 
     private static async Task ImperativeProcessAsync(IConfiguration configuration)
@@ -65,7 +67,7 @@ public class Program
     {
         Console.WriteLine("\n=== Declarative Process ===\n");
 
-        const string FileName = "product-documentation.process.yaml";
+        const string FileName = "meta-programmable-system-mutation1.process.yaml";
         const string StartEvent = "input_message_received";
 
         // Read Process YAML content
@@ -94,5 +96,43 @@ public class Program
         kernel.FunctionInvocationFilters.Add(new ConsoleOutputFunctionInvocationFilter());
 
         return kernel;
+    }
+
+    private static async Task ImperativeMetaProgrammableSystemAsync(IConfiguration configuration)
+    {
+        Console.WriteLine("\n=== Imperative Meta-Programmable System ===");
+        
+        // Create the process builder
+        ProcessBuilder processBuilder = new("MetaProgrammableSystem");
+
+        // Add the steps
+        var getProductInfoStep = processBuilder.AddStepFromType<GetProductInfoStep>();
+        var productDocumentationStep = processBuilder.AddStepFromType<PublishDocumentationStep>();
+        var knowledgeManagementStep = processBuilder.AddStepFromType<KnowledgeManagementStep>();
+        var finalPublishStep = processBuilder.AddStepFromType<FinalPublishStep>();
+
+        // Orchestrate the events
+        processBuilder
+            .OnInputEvent("Start")
+            .SendEventTo(new ProcessFunctionTargetBuilder(getProductInfoStep));
+
+        getProductInfoStep
+            .OnFunctionResult()
+            .SendEventTo(new ProcessFunctionTargetBuilder(productDocumentationStep));
+
+        productDocumentationStep
+            .OnFunctionResult()
+            .SendEventTo(new ProcessFunctionTargetBuilder(knowledgeManagementStep));
+
+        knowledgeManagementStep
+            .OnFunctionResult()
+            .SendEventTo(new ProcessFunctionTargetBuilder(finalPublishStep));
+
+        // Use the existing kernel configuration
+        Kernel kernel = CreateKernel(configuration);
+        KernelProcess kernelProcess = processBuilder.Build();
+
+        // Start process
+        await using var runningProcess = await kernelProcess!.StartAsync(kernel, new() { Id = "Start", Data = "Meta-Programmable System Test" });
     }
 }

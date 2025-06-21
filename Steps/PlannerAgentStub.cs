@@ -1,10 +1,19 @@
+using Microsoft.SemanticKernel;
 using ProductDocumentation.Utils;
 using System;
 
 namespace ProductDocumentation.Steps
 {
-    public class PlannerAgentStub
+    public sealed class PlannerAgentStub : KernelProcessStep
     {
+        [KernelFunction]
+        public string Run(string input)
+        {
+            ChainOfThoughtLogger.LogStep("PlannerAgent", "Run", $"Planning with input: {input}");
+            Console.WriteLine($"📋 PlannerAgent: Planning with input: {input}");
+            return "PlannerAgent completed successfully";
+        }
+
         public void Plan(string goal)
         {
             ChainOfThoughtLogger.LogStep("PlannerAgent", "Plan", $"Planning for goal: {goal}");

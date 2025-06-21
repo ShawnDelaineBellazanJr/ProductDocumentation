@@ -1,0 +1,75 @@
+workflow:
+  id: ProductDocumentation
+  description: Product documentation process
+  version: "1.0"
+  inputs:
+    events:
+      cloud_events:
+        - type: input_message_received
+          data_schema: 
+            type: string
+  nodes:
+    - id: GetProductInfoStep
+      type: dotnet
+      description: Get product info step
+      agent:
+        type: Steps.GetProductInfoStep, ProductDocumentation
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: GetProductInfo.OnResult
+    - id: ProductDocumentationStep
+      type: dotnet
+      description: Product documentation step
+      agent:
+        type: Steps.PublishDocumentationStep, ProductDocumentation
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: ProductDocumentation.OnResult
+    - id: KnowledgeManagementStep
+      type: dotnet
+      description: Knowledge management step
+      agent:
+        type: Steps.KnowledgeManagementStep, ProductDocumentation
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: KnowledgeManagement.OnResult
+    - id: PublishDocumentationStep
+      type: dotnet
+      description: Publish documentation step
+      agent:
+        type: Steps.PublishDocumentationStep, ProductDocumentation
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: ProcessCompleted
+  orchestration:
+    - listen_for:
+        event: input_message_received
+        from: _workflow_
+      then:
+        - node: GetProductInfoStep
+    - listen_for:
+        event: GetProductInfo.OnResult
+        from: GetProductInfoStep
+      then:
+        - node: ProductDocumentationStep
+    - listen_for:
+        event: ProductDocumentation.OnResult
+        from: ProductDocumentationStep
+      then:
+        - node: KnowledgeManagementStep
+          with_data:
+            learningOutcomes: "Product documentation workflow completed successfully"
+            successPatterns: "Multi-step process with custom agents working"
+    - listen_for:
+        event: KnowledgeManagement.OnResult
+        from: KnowledgeManagementStep
+      then:
+        - node: PublishDocumentationStep 

@@ -88,4 +88,25 @@ This log tracks all actions, reasoning, and reflections during the development a
 ### 🔄 Loop
 - Next cycle: Autonomous workspace scan and MetaEvolver solution development
 
+## 2024-07-01 — Loader Error and Adaptive Debugging
+
+### 🛑 Persistent Loader Error
+- Error: "A complete then action is required for orchestration steps." persists for all minimal and custom YAMLs except the original product-documentation.process.yaml.
+- All YAML syntax, indentation, and node structures have been validated and match the working example.
+- Assembly-qualified type names and node IDs are correct.
+
+### 🔍 Chain-of-Thought Reasoning
+- The loader may be hardcoded to expect specific node names/types, or there is a breaking change/bug in the SK alpha loader.
+- All attempts to use minimal or custom processes fail, even with correct YAML.
+- The only YAML that works is the original product-documentation.process.yaml.
+
+### 🧪 Next Steps: Mutation-Based Debugging
+- Copy the working product-documentation.process.yaml and change only one node at a time to discover what triggers the loader error.
+- If any change breaks it, revert and try a different field.
+- If all changes break it, the loader is hardcoded or broken for custom processes.
+
+### 🚦 Status
+- Logging this persistent issue and reasoning for full traceability.
+- Will continue mutation-based debugging and never stop until a custom process runs.
+
 --- 

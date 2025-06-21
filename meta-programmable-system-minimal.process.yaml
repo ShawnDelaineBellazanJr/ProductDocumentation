@@ -1,0 +1,41 @@
+workflow:
+  id: MetaProgrammableSystemMinimal
+  description: |
+    Loader-compatible minimal process: Start node triggers End node.
+  version: "0.1"
+  inputs:
+    input_message:
+      type: string
+      description: "Initial message or goal to start the process."
+  nodes:
+    - id: Start
+      type: dotnet
+      description: Start node
+      agent:
+        type: ProductDocumentation.Steps.OrchestratorAgentStub, ProductDocumentation
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: process_started
+    - id: End
+      type: dotnet
+      description: End node
+      agent:
+        type: ProductDocumentation.Steps.OrchestratorAgentStub, ProductDocumentation
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: process_ended
+  orchestration:
+    - listen_for:
+        event: process_started
+        from: Start
+      then:
+        - node: End
+    - listen_for:
+        event: process_ended
+        from: End
+      then:
+        - stop: true 
