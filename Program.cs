@@ -21,7 +21,8 @@ public class Program
         // 2. Declarate approach, by importing YAML file.
         await ImperativeProcessAsync(configuration);
         await DeclarativeProcessAsync(configuration);
-        await ImperativeMetaProgrammableSystemAsync(configuration);
+        await RunImperativeMetaProgrammableSystem(configuration);
+        await RunAIAgentEnhancedSystem(configuration);
     }
 
     private static async Task ImperativeProcessAsync(IConfiguration configuration)
@@ -98,7 +99,7 @@ public class Program
         return kernel;
     }
 
-    private static async Task ImperativeMetaProgrammableSystemAsync(IConfiguration configuration)
+    private static async Task RunImperativeMetaProgrammableSystem(IConfiguration configuration)
     {
         Console.WriteLine("\n=== Imperative Meta-Programmable System ===");
         
@@ -133,6 +134,40 @@ public class Program
         KernelProcess kernelProcess = processBuilder.Build();
 
         // Start process
-        await using var runningProcess = await kernelProcess!.StartAsync(kernel, new() { Id = "Start", Data = "Meta-Programmable System Test" });
+        await using var runningProcess = await kernelProcess!.StartAsync(kernel, new() { Id = "Start", Data = "QuantumPhone" });
+    }
+
+    private static async Task RunAIAgentEnhancedSystem(IConfiguration configuration)
+    {
+        Console.WriteLine("\n=== AI Agent Enhanced Meta-Programmable System ===");
+        
+        try
+        {
+            // Create the process builder
+            ProcessBuilder processBuilder = new("AIAgentEnhancedSystem");
+
+            // Add just the orchestrator step for testing
+            var orchestratorStep = processBuilder.AddStepFromType<OrchestratorAgentStep>();
+
+            // Simple orchestration
+            processBuilder
+                .OnInputEvent("Start")
+                .SendEventTo(new ProcessFunctionTargetBuilder(orchestratorStep));
+
+            // Use the existing kernel configuration
+            Kernel kernel = CreateKernel(configuration);
+            KernelProcess kernelProcess = processBuilder.Build();
+
+            // Start process with a simple goal
+            var simpleGoal = "Generate documentation for a new product";
+            
+            Console.WriteLine($"🎯 Testing AI Agent with goal: {simpleGoal}");
+            await using var runningProcess = await kernelProcess!.StartAsync(kernel, new() { Id = "Start", Data = simpleGoal });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ AI Agent Enhanced System Error: {ex.Message}");
+            Console.WriteLine($"🔍 Stack Trace: {ex.StackTrace}");
+        }
     }
 }
