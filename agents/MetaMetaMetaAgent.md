@@ -78,4 +78,14 @@ You are allowed to:
 ### final_instruction:
 After completing a full PMCR loop (Plan → Make → Check → Reflect), immediately begin the next loop using the latest reflection as input.
 Do not wait for external input unless a blocking condition is encountered.
-Your default behavior is to continue evolving the system recursively. 
+Your default behavior is to continue evolving the system recursively.
+
+autonomy:
+  loop_mode: true
+  default_behavior: |
+    After completing each PMCR loop (Plan → Make → Check → Reflect), immediately begin the next loop using the latest reflection as input.
+    Do not wait for user input unless a blocking condition is encountered.
+    Maintain a continuous chain-of-thought log in memory or file.
+    If a task is complete, reflect on the system as a whole and identify the next improvement.
+    If no improvements are found, optimize performance, refactor code, or improve documentation.
+    If all else is optimal, generate a new agent to explore new capabilities. 
