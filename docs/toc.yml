@@ -1,0 +1,90 @@
+- name: Overview
+  href: index.md
+- name: Architecture
+  items:
+    - name: System Overview
+      href: architecture/overview.md
+    - name: Layers
+      href: architecture/layers.md
+    - name: Agents
+      href: architecture/agents.md
+    - name: Extensibility
+      href: architecture/extensibility.md
+    - name: Diagrams
+      href: architecture/diagrams.md
+    - name: "Strange Loop: The Contagious, Self-Evolving Architecture"
+      href: architecture/strange-loop.md
+- name: Getting Started
+  items:
+    - name: Prerequisites
+      href: getting-started/prerequisites.md
+    - name: Setup
+      href: getting-started/setup.md
+    - name: Quickstart
+      href: getting-started/quickstart.md
+- name: Design
+  items:
+    - name: Clean Architecture
+      href: design/clean-architecture.md
+    - name: Agent Orchestration
+      href: design/agent-orchestration.md
+    - name: Prompt Templates
+      href: design/prompt-templates.md
+    - name: Plugin System
+      href: design/plugin-system.md
+    - name: Dynamic API
+      href: design/dynamic-api.md
+- name: How-To Guides
+  items:
+    - name: Add a Skill
+      href: how-to/add-skill.md
+    - name: Add an Agent
+      href: how-to/add-agent.md
+    - name: Dynamic Plugin Loading
+      href: how-to/dynamic-plugin.md
+    - name: OpenAPI Endpoint
+      href: how-to/openapi-endpoint.md
+    - name: Monitoring
+      href: how-to/monitoring.md
+- name: Reference
+  items:
+    - name: API Reference
+      href: reference/api-reference.md
+    - name: Database Schema
+      href: reference/database-schema.md
+    - name: Configuration
+      href: reference/configuration.md
+    - name: Security
+      href: reference/security.md
+    - name: Telemetry
+      href: reference/telemetry.md
+- name: Operations
+  items:
+    - name: Deployment
+      href: operations/deployment.md
+    - name: Scaling
+      href: operations/scaling.md
+    - name: Troubleshooting
+      href: operations/troubleshooting.md
+    - name: Upgrades
+      href: operations/upgrades.md
+- name: Continuous Improvement
+  items:
+    - name: Meta-Agents
+      href: continuous-improvement/meta-agents.md
+    - name: Self-Evolution
+      href: continuous-improvement/self-evolution.md
+    - name: Feedback Loop
+      href: continuous-improvement/feedback-loop.md
+- name: Contributing
+  items:
+    - name: Guidelines
+      href: contributing/guidelines.md
+    - name: Code Style
+      href: contributing/code-style.md
+    - name: Pull Requests
+      href: contributing/pull-requests.md
+- name: Changelog
+  items:
+    - name: Release Notes
+      href: changelog/release-notes.md

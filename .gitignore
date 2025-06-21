@@ -1,0 +1,29 @@
+# Build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# User secrets
+secrets.json
+*.secret*
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Dotnet tools
+*.nupkg
+.nuget/
+
+# Others
+*.swp
+*.tmp 
