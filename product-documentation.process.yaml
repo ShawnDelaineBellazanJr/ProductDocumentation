@@ -7,6 +7,20 @@ workflow:
           data_schema: 
             type: string
   nodes:
+    - id: MetaMetaMetaAgent
+      type: declarative
+      description: Self-evolving, autonomous architect/engineer for platform improvement
+      agent:
+        type: chat_completion_agent
+        name: MetaMetaMetaAgent
+        description: Self-evolving, autonomous architect/engineer for platform improvement
+        instructions: |
+          See agents/MetaMetaMetaAgent.md for full prompt and rules.
+      on_complete:
+        - on_condition:
+            type: default
+            emits:
+              - event_type: MetaMetaMetaAgent.OnComplete
     - id: GetProductInfoStep
       type: dotnet
       description: Gather information about the product
@@ -48,6 +62,11 @@ workflow:
     - listen_for:
         event: input_message_received
         from: _workflow_
+      then:
+        - node: MetaMetaMetaAgent
+    - listen_for:
+        event: MetaMetaMetaAgent.OnComplete
+        from: MetaMetaMetaAgent
       then:
         - node: GetProductInfoStep
     - listen_for:

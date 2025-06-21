@@ -55,3 +55,14 @@ To debug a process:
 ## Reporting Issues
 
 If you encounter any issues or have suggestions, please report them on our [GitHub repository](https://github.com/microsoft/semantic-kernel).
+
+## MetaMetaMetaAgent: Self-Evolving Autonomous Architect
+
+The **MetaMetaMetaAgent** is a self-evolving, autonomous software architect and engineer. It operates inside the platform, continuously improving itself and the system using a recursive PMCR (Plan → Make → Check → Reflect) loop. It can:
+- Generate and refactor workflows, agents, and skills
+- Modify its own prompt and architecture
+- Chunk and summarize large prompts/files to handle token limits
+- Document all reasoning and changes for auditability
+- Propose and implement improvements to itself and the platform
+
+See `agents/MetaMetaMetaAgent.md` for the full prompt and rules.
